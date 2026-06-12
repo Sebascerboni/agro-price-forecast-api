@@ -11,6 +11,7 @@ from app.core.model_registry import (
     get_feature_dataset_path,
     get_feature_metadata,
     get_metadata,
+    get_metrics,
     get_model_dir,
     list_product_models,
     list_products,
@@ -19,6 +20,7 @@ from app.core.model_registry import (
 from app.schemas.prediction import (
     ComparePredictionRequest,
     ComparePredictionResponse,
+    ModelInsight,
     PredictionPoint,
     PredictionRequest,
     PredictionResponse,
@@ -120,7 +122,14 @@ def predict(request: PredictionRequest) -> PredictionResponse:
 def compare_predictions(request: ComparePredictionRequest) -> ComparePredictionResponse:
     available_models = list_product_models(request.product_id)
 
+    historical, current_price, last_observed_date = get_product_province_history(
+        product_id=request.product_id,
+        province=request.province,
+        months=12,
+    )
+
     predictions = {}
+    insights = {}
     pending_models = []
 
     for model_name in available_models:
@@ -133,6 +142,11 @@ def compare_predictions(request: ComparePredictionRequest) -> ComparePredictionR
             )
             arima_response = predict_arima(arima_request)
             predictions["arima"] = arima_response.predictions
+            insights["arima"] = build_model_insight(
+                "arima",
+                current_price,
+                arima_response.predictions,
+            )
 
         elif model_name == "xgboost":
             xgboost_request = PredictionRequest(
@@ -143,6 +157,11 @@ def compare_predictions(request: ComparePredictionRequest) -> ComparePredictionR
             )
             xgboost_response = predict_xgboost(xgboost_request)
             predictions["xgboost"] = xgboost_response.predictions
+            insights["xgboost"] = build_model_insight(
+                "xgboost",
+                current_price,
+                xgboost_response.predictions,
+            )
 
         elif model_name == "lstm":
             lstm_request = PredictionRequest(
@@ -153,6 +172,11 @@ def compare_predictions(request: ComparePredictionRequest) -> ComparePredictionR
             )
             lstm_response = predict_lstm(lstm_request)
             predictions["lstm"] = lstm_response.predictions
+            insights["lstm"] = build_model_insight(
+                "lstm",
+                current_price,
+                lstm_response.predictions,
+            )
 
         else:
             pending_models.append(model_name)
@@ -161,7 +185,13 @@ def compare_predictions(request: ComparePredictionRequest) -> ComparePredictionR
         product_id=request.product_id,
         province=request.province,
         horizon=request.horizon,
+        unit="USD/kg",
+        last_observed_date=last_observed_date,
+        current_price=current_price,
+        best_model=get_best_model_by_rmse(request.product_id),
         predictions=predictions,
+        historical=historical,
+        insights=insights,
         pending_models=pending_models,
     )
 
@@ -432,4 +462,99 @@ def predict_lstm(request: PredictionRequest) -> PredictionResponse:
         province=request.province,
         horizon=request.horizon,
         predictions=predictions,
+    )
+
+
+def get_product_province_history(product_id: str, province: str, months: int = 12) -> tuple[list[dict], float, str]:
+    metadata = get_feature_metadata(product_id)
+    target_column = metadata.get("target_column", "target_precio_mercado_usdkg")
+
+    dataset_path = get_feature_dataset_path(product_id)
+
+    if not dataset_path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"No existe el dataset procesado: {dataset_path}",
+        )
+
+    df = pd.read_csv(dataset_path)
+
+    province_df = df[
+        df["provincia"].apply(lambda value: normalize_text(str(value)))
+        == normalize_text(province)
+    ].copy()
+
+    if province_df.empty:
+        available_provinces = sorted(df["provincia"].dropna().unique().tolist())
+        raise HTTPException(
+            status_code=404,
+            detail=f"Provincia no encontrada. Provincias disponibles: {available_provinces}",
+        )
+
+    province_df["fecha"] = pd.to_datetime(province_df["fecha"])
+    province_df = province_df.sort_values("fecha")
+
+    history_df = province_df.tail(months)
+
+    historical = [
+        {
+            "date": row["fecha"].strftime("%Y-%m-%d"),
+            "price": float(row[target_column]),
+        }
+        for _, row in history_df.iterrows()
+    ]
+
+    current_price = float(province_df.iloc[-1][target_column])
+    last_observed_date = province_df.iloc[-1]["fecha"].strftime("%Y-%m-%d")
+
+    return historical, current_price, last_observed_date
+
+
+def get_best_model_by_rmse(product_id: str) -> str | None:
+    metrics = get_metrics(product_id)
+
+    if not metrics:
+        return None
+
+    valid_models = [
+        (model_name, values)
+        for model_name, values in metrics.items()
+        if isinstance(values, dict) and values.get("rmse") is not None
+    ]
+
+    if not valid_models:
+        return None
+
+    return min(valid_models, key=lambda item: item[1]["rmse"])[0]
+
+
+def build_model_insight(
+    model_name: str,
+    current_price: float,
+    predictions: list[PredictionPoint],
+) -> ModelInsight:
+    first_prediction = float(predictions[0].y_pred)
+    last_prediction = float(predictions[-1].y_pred)
+
+    absolute_change = last_prediction - current_price
+
+    if current_price == 0:
+        percentage_change = 0.0
+    else:
+        percentage_change = (absolute_change / current_price) * 100
+
+    if percentage_change > 2:
+        trend = "up"
+    elif percentage_change < -2:
+        trend = "down"
+    else:
+        trend = "stable"
+
+    return ModelInsight(
+        model_name=model_name,
+        first_prediction=first_prediction,
+        last_prediction=last_prediction,
+        absolute_change=absolute_change,
+        percentage_change=percentage_change,
+        trend=trend,
     )

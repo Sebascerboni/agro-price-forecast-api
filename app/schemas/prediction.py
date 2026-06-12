@@ -33,3 +33,31 @@ class ComparePredictionResponse(BaseModel):
     horizon: int
     predictions: dict[str, list[PredictionPoint]]
     pending_models: list[str]
+
+
+class HistoricalPoint(BaseModel):
+    date: str
+    price: float
+
+
+class ModelInsight(BaseModel):
+    model_name: str
+    first_prediction: float
+    last_prediction: float
+    absolute_change: float
+    percentage_change: float
+    trend: str
+
+
+class ComparePredictionResponse(BaseModel):
+    product_id: str
+    province: str
+    horizon: int
+    unit: str
+    last_observed_date: str
+    current_price: float
+    best_model: str | None
+    predictions: dict[str, list[PredictionPoint]]
+    historical: list[HistoricalPoint]
+    insights: dict[str, ModelInsight]
+    pending_models: list[str]
