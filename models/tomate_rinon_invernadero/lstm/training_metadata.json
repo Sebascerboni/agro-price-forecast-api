@@ -2,9 +2,10 @@
   "product_id": "tomate_rinon_invernadero",
   "product_name": "Tomate Rinon de Invernadero",
   "model_name": "lstm",
-  "model_file": "models\\tomate_rinon_invernadero\\lstm\\model.keras",
-  "feature_scaler_file": "models\\tomate_rinon_invernadero\\lstm\\feature_scaler.joblib",
-  "target_scaler_file": "models\\tomate_rinon_invernadero\\lstm\\target_scaler.joblib",
+  "feature_set": "full",
+  "model_file": "models\\tomate_rinon_invernadero\\lstm\\full\\model.keras",
+  "feature_scaler_file": "models\\tomate_rinon_invernadero\\lstm\\full\\feature_scaler.joblib",
+  "target_scaler_file": "models\\tomate_rinon_invernadero\\lstm\\full\\target_scaler.joblib",
   "target_column": "target_precio_mercado_usdkg",
   "feature_columns": [
     "provincia_id",
@@ -12,9 +13,17 @@
     "trimestre",
     "mes_sin",
     "mes_cos",
-    "mercados_observaciones",
-    "mercados_distintos",
-    "tipos_mercado_distintos",
+    "target_lag_1",
+    "target_lag_2",
+    "target_lag_3",
+    "target_lag_6",
+    "target_lag_12",
+    "target_rolling_mean_3",
+    "target_rolling_std_3",
+    "target_rolling_mean_6",
+    "target_rolling_std_6",
+    "target_momentum_1_3",
+    "target_momentum_1_6",
     "precio_productor_provincia_usdkg",
     "precio_productor_nacional_usdkg",
     "precio_productor_usdkg_filled",
@@ -32,17 +41,6 @@
     "ibc",
     "ipm",
     "ipp_n",
-    "target_lag_1",
-    "target_lag_2",
-    "target_lag_3",
-    "target_lag_6",
-    "target_lag_12",
-    "target_rolling_mean_3",
-    "target_rolling_std_3",
-    "target_rolling_mean_6",
-    "target_rolling_std_6",
-    "target_momentum_1_3",
-    "target_momentum_1_6",
     "productor_lag_1",
     "productor_lag_3",
     "fertilizantes_lag_1",
@@ -54,10 +52,77 @@
     "ipp_n_lag_1"
   ],
   "window_size": 8,
-  "train_ratio": 0.8,
+  "holdout_test_ratio": 0.2,
   "epochs": 120,
   "batch_size": 8,
-  "lstm_units": 64,
+  "lstm_units": 32,
   "learning_rate": 0.001,
-  "verbose": 0
+  "verbose": 0,
+  "hyperparam_grid": [
+    {
+      "window_size": 6,
+      "lstm_units": 32
+    },
+    {
+      "window_size": 6,
+      "lstm_units": 64
+    },
+    {
+      "window_size": 8,
+      "lstm_units": 32
+    },
+    {
+      "window_size": 8,
+      "lstm_units": 64
+    },
+    {
+      "window_size": 10,
+      "lstm_units": 32
+    },
+    {
+      "window_size": 10,
+      "lstm_units": 64
+    }
+  ],
+  "hyperparam_tuning_results": [
+    {
+      "window_size": 6,
+      "lstm_units": 32,
+      "validation_rmse_mean": 0.1920971634515922,
+      "n_windows": 3
+    },
+    {
+      "window_size": 6,
+      "lstm_units": 64,
+      "validation_rmse_mean": 0.19112100479933947,
+      "n_windows": 3
+    },
+    {
+      "window_size": 8,
+      "lstm_units": 32,
+      "validation_rmse_mean": 0.14116273285459602,
+      "n_windows": 3
+    },
+    {
+      "window_size": 8,
+      "lstm_units": 64,
+      "validation_rmse_mean": 0.14748623109362513,
+      "n_windows": 3
+    },
+    {
+      "window_size": 10,
+      "lstm_units": 32,
+      "validation_rmse_mean": 0.2556217303186254,
+      "n_windows": 3
+    },
+    {
+      "window_size": 10,
+      "lstm_units": 64,
+      "validation_rmse_mean": 0.16079661448974994,
+      "n_windows": 3
+    }
+  ],
+  "validation_rmse_mean": 0.14116273285459602,
+  "operational_rmse_mean": 0.08312809813325019,
+  "validation_predictions_file": "models\\tomate_rinon_invernadero\\lstm\\full\\validation_predictions.csv"
 }

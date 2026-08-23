@@ -2,26 +2,42 @@
   "product_id": "maracuya",
   "product_name": "Maracuya",
   "model_name": "arima",
+  "feature_set": "full",
   "model_files": {
-    "Guayas": "models\\maracuya\\arima\\model_guayas.joblib",
-    "Los Rios": "models\\maracuya\\arima\\model_los_rios.joblib",
-    "Manabí": "models\\maracuya\\arima\\model_manabí.joblib",
-    "Santa Elena": "models\\maracuya\\arima\\model_santa_elena.joblib",
-    "Santo Domingo De Los Tsáchilas": "models\\maracuya\\arima\\model_santo_domingo_de_los_tsáchilas.joblib"
+    "Guayas": "models\\maracuya\\arima\\full\\model_guayas.joblib",
+    "Los Rios": "models\\maracuya\\arima\\full\\model_los_rios.joblib",
+    "Manabí": "models\\maracuya\\arima\\full\\model_manabí.joblib",
+    "Santa Elena": "models\\maracuya\\arima\\full\\model_santa_elena.joblib",
+    "Santo Domingo De Los Tsáchilas": "models\\maracuya\\arima\\full\\model_santo_domingo_de_los_tsáchilas.joblib"
   },
   "target_column": "target_precio_mercado_usdkg",
-  "train_ratio": 0.8,
-  "order": [
-    1,
-    1,
-    1
+  "exog_columns": [
+    "mercados_observaciones",
+    "mercados_distintos",
+    "tipos_mercado_distintos",
+    "precio_productor_provincia_usdkg",
+    "precio_productor_nacional_usdkg",
+    "precio_productor_usdkg_filled",
+    "productor_missing_exact",
+    "fertilizantes_precio_promedio_provincia",
+    "fertilizantes_precio_promedio_nacional",
+    "fertilizantes_precio_promedio_filled",
+    "fertilizantes_registros_provincia",
+    "fertilizantes_ingredientes_activos_provincia",
+    "fertilizantes_missing_exact",
+    "ipc_alimentos",
+    "inflacion_mensual",
+    "inflacion_anual",
+    "inflacion_acumulada",
+    "ibc",
+    "ipm",
+    "ipp_n",
+    "mes_num",
+    "trimestre",
+    "mes_sin",
+    "mes_cos"
   ],
-  "seasonal_order": [
-    1,
-    0,
-    1,
-    12
-  ],
+  "holdout_test_ratio": 0.2,
   "order_grid": [
     [
       1,
@@ -58,8 +74,7 @@
       12
     ]
   ],
-  "validation_ratio_within_train": 0.8,
-  "selection_strategy": "product_order_override",
+  "selection_strategy": "validation_grid_search",
   "selected_orders_by_province": {
     "Guayas": {
       "order": [
@@ -68,12 +83,134 @@
         1
       ],
       "seasonal_order": [
-        0,
+        1,
         0,
         1,
         12
       ],
-      "tuning_results": []
+      "validation_rmse_mean": NaN,
+      "tuning_results": [
+        {
+          "order": [
+            1,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            1,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            0,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            0,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            1,
+            1,
+            0
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            1,
+            1,
+            0
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            2,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            2,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        }
+      ]
     },
     "Los Rios": {
       "order": [
@@ -82,12 +219,134 @@
         1
       ],
       "seasonal_order": [
-        0,
+        1,
         0,
         1,
         12
       ],
-      "tuning_results": []
+      "validation_rmse_mean": NaN,
+      "tuning_results": [
+        {
+          "order": [
+            1,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            1,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            0,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            0,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            1,
+            1,
+            0
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            1,
+            1,
+            0
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            2,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            2,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        }
+      ]
     },
     "Manabí": {
       "order": [
@@ -96,12 +355,134 @@
         1
       ],
       "seasonal_order": [
-        0,
+        1,
         0,
         1,
         12
       ],
-      "tuning_results": []
+      "validation_rmse_mean": NaN,
+      "tuning_results": [
+        {
+          "order": [
+            1,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            1,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            0,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            0,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            1,
+            1,
+            0
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            1,
+            1,
+            0
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            2,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            2,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        }
+      ]
     },
     "Santa Elena": {
       "order": [
@@ -110,12 +491,134 @@
         1
       ],
       "seasonal_order": [
-        0,
+        1,
         0,
         1,
         12
       ],
-      "tuning_results": []
+      "validation_rmse_mean": NaN,
+      "tuning_results": [
+        {
+          "order": [
+            1,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 3
+        },
+        {
+          "order": [
+            1,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 3
+        },
+        {
+          "order": [
+            0,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 3
+        },
+        {
+          "order": [
+            0,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 3
+        },
+        {
+          "order": [
+            1,
+            1,
+            0
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 3
+        },
+        {
+          "order": [
+            1,
+            1,
+            0
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 3
+        },
+        {
+          "order": [
+            2,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 3
+        },
+        {
+          "order": [
+            2,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 3
+        }
+      ]
     },
     "Santo Domingo De Los Tsáchilas": {
       "order": [
@@ -124,14 +627,141 @@
         1
       ],
       "seasonal_order": [
-        0,
+        1,
         0,
         1,
         12
       ],
-      "tuning_results": []
+      "validation_rmse_mean": NaN,
+      "tuning_results": [
+        {
+          "order": [
+            1,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            1,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            0,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            0,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            1,
+            1,
+            0
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            1,
+            1,
+            0
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            2,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        },
+        {
+          "order": [
+            2,
+            1,
+            1
+          ],
+          "seasonal_order": [
+            1,
+            0,
+            1,
+            12
+          ],
+          "validation_rmse_mean": Infinity,
+          "n_windows": 2
+        }
+      ]
     }
   },
   "min_observations": 24,
-  "province_metrics_file": "models\\maracuya\\arima\\province_metrics.csv"
+  "min_test_obs_for_province_conclusions": 5,
+  "validation_rmse_mean": NaN,
+  "operational_rmse_mean": 0.20208965429023346,
+  "n_validation_windows": 3,
+  "province_metrics_file": "models\\maracuya\\arima\\full\\province_metrics.csv",
+  "validation_predictions_file": "models\\maracuya\\arima\\full\\validation_predictions.csv"
 }
