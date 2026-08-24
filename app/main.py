@@ -1,7 +1,16 @@
+import os
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
-from app.core.model_registry import get_metrics, list_product_models, list_products
+from app.core.model_registry import (
+    get_metrics,
+    get_product_provinces,
+    get_product_summary,
+    list_product_models,
+    list_products,
+)
 from app.schemas.prediction import (
     ComparePredictionRequest,
     ComparePredictionResponse,
@@ -9,14 +18,7 @@ from app.schemas.prediction import (
     PredictionResponse,
 )
 from app.services.predictor import compare_predictions, predict
-from app.core.model_registry import (
-    get_metrics,
-    get_product_summary,
-    get_product_provinces,
-    list_product_models,
-    list_products,
-)
-from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI(
     title=settings.app_name,
@@ -24,9 +26,7 @@ app = FastAPI(
 )
 
 allowed_origins = [
-    origin.strip()
-    for origin in settings.allowed_origins.split(",")
-    if origin.strip()
+    "*"
 ]
 
 app.add_middleware(
@@ -79,11 +79,6 @@ def product_model_metrics(product_id: str, model_name: str):
     }
 
 
-@app.post("/predict", response_model=PredictionResponse)
-def create_prediction(request: PredictionRequest):
-    return predict(request)
-
-
 @app.get("/products/{product_id}/provinces")
 def product_provinces(product_id: str):
     return {
@@ -97,6 +92,15 @@ def product_summary(product_id: str):
     return get_product_summary(product_id)
 
 
+@app.post("/predict", response_model=PredictionResponse)
+def create_prediction(request: PredictionRequest):
+    return predict(request)
+
+
 @app.post("/predict/compare", response_model=ComparePredictionResponse)
 def compare_prediction_models(request: ComparePredictionRequest):
     return compare_predictions(request)
+
+
+if os.getenv('ENV') == 'production':
+    app.mount("/", StaticFiles(directory="static", html=True), name="static")
