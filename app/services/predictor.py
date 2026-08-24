@@ -74,7 +74,8 @@ def predict_arima(request: PredictionRequest) -> PredictionResponse:
             detail=f"Provincia no encontrada para ARIMA. Provincias disponibles: {list(province_model_files.keys())}",
         )
 
-    model_file_name = f"model_{normalize_text(matched_province)}.joblib"
+    model_file = province_model_files[matched_province]
+    model_file_name = model_file.replace("\\", "/").split("/")[-1]
     model_path = get_model_dir(request.product_id, "arima") / model_file_name
 
     if not model_path.exists():
@@ -84,7 +85,57 @@ def predict_arima(request: PredictionRequest) -> PredictionResponse:
         )
 
     model = joblib.load(model_path)
-    forecast = model.forecast(steps=request.horizon)
+
+    # Construir exog futuro si el modelo fue entrenado con variables exógenas
+    k_exog = getattr(model.model, 'k_exog', 0)
+    exog_future = None
+
+    if k_exog > 0:
+        exog_names = model.model.exog_names
+
+        dataset_path = get_feature_dataset_path(request.product_id)
+        if not dataset_path.exists():
+            raise HTTPException(
+                status_code=404,
+                detail=f"No existe el dataset procesado: {dataset_path}",
+            )
+
+        df = pd.read_csv(dataset_path)
+        province_df = df[
+            df["provincia"].apply(lambda v: normalize_text(str(v))) == normalize_text(request.province)
+        ].sort_values("fecha")
+
+        if province_df.empty:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Provincia no encontrada en el dataset: {request.province}",
+            )
+
+        last_row = province_df.iloc[-1]
+
+        # Repetir última fila conocida para cada step futuro (igual que XGBoost/LSTM)
+        exog_future = pd.DataFrame(
+            [last_row[exog_names].values] * request.horizon,
+            columns=exog_names,
+        )
+
+        # Actualizar features de fecha correctamente
+        last_date = pd.Timestamp(model.model.data.dates[-1])
+        future_dates = pd.date_range(
+            start=last_date + pd.DateOffset(months=1),
+            periods=request.horizon,
+            freq="MS",
+        )
+        if "mes_num" in exog_names:
+            exog_future["mes_num"] = future_dates.month
+        if "trimestre" in exog_names:
+            exog_future["trimestre"] = future_dates.quarter
+        if "mes_sin" in exog_names:
+            exog_future["mes_sin"] = np.sin(2 * np.pi * future_dates.month / 12)
+        if "mes_cos" in exog_names:
+            exog_future["mes_cos"] = np.cos(2 * np.pi * future_dates.month / 12)
+
+    forecast = model.forecast(steps=request.horizon, exog=exog_future)
     values = np.asarray(forecast, dtype=float).reshape(-1)
 
     predictions = [

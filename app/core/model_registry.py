@@ -42,7 +42,8 @@ def read_json_file(path: Path) -> dict:
         return {}
 
     with path.open("r", encoding="utf-8") as file:
-        return json.load(file)
+        content = file.read().replace(": NaN", ": null").replace(":NaN", ":null")
+        return json.loads(content)
 
 
 def get_metrics(product_id: str, model_name: str | None = None) -> dict:
